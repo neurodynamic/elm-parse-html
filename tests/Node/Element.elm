@@ -42,16 +42,16 @@ suite =
                         let
                             badElement =
                                 "<p>"
+
+                            result =
+                                run element badElement
                         in
-                            Expect.equal (run element badElement)
-                                (Err
-                                    { row = 1
-                                    , col = 4
-                                    , source = badElement
-                                    , problem = ExpectingSymbol "</p>"
-                                    , context = [ { row = 1, col = 1, description = "html element" } ]
-                                    }
-                                )
+                            case result of
+                                Err error ->
+                                    Expect.equal error.problem (ExpectingSymbol "</p>")
+
+                                _ ->
+                                    Expect.fail "Result wasn't an error."
                 ]
             , test "Matches self-closing tags."
                 <| \_ ->
