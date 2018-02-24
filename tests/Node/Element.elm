@@ -38,6 +38,13 @@ suite =
                         in
                             Expect.equal (run element goodElement)
                                 (Ok (Element "button" [ ( "disabled", Nothing ) ] []))
+                , test "Fails if attribute has equals but no value."
+                    <| \_ ->
+                        let
+                            result =
+                                run element "<button attr=></button>"
+                        in
+                            expectProblem result (BadOneOf [ ExpectingSymbol "\"", ExpectingSymbol "'", ExpectingVariable ])
                 , test "Fails without closing tag."
                     <| \_ ->
                         let
