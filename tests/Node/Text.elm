@@ -1,9 +1,9 @@
-module Node.Test exposing (..)
+module Node.Text exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
-import Parser exposing (run, Error)
+import Parser exposing (run, Error, Problem(..))
 import ParseHtml.Node.Text exposing (textNode)
 import ParseHtml.Node.Model exposing (Node(..))
 
@@ -25,6 +25,14 @@ suite =
                         textString =
                             "<Fiddlesticks!"
                     in
-                        Expect.equal (run textNode textString) (Err (Error "Message"))
+                        Expect.equal (run textNode textString)
+                            (Err
+                                { row = 1
+                                , col = 1
+                                , source = textString
+                                , problem = BadRepeat
+                                , context = [ { row = 1, col = 1, description = "text" } ]
+                                }
+                            )
             ]
         ]
