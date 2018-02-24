@@ -12,14 +12,21 @@ suite : Test
 suite =
     describe "The Text module"
         [ describe "Text.textNode"
-            [ test "Returns the string if there are no < characters in it."
+            [ test "Returns the whole string if there are no < characters in it."
                 <| \_ ->
                     let
                         textString =
                             "Hey yo I'm a string!"
                     in
                         Expect.equal (run textNode textString) (Ok (TextNode textString))
-            , test "Fails if there are < characters."
+            , test "Succeeds the string until the first < character if it contains one."
+                <| \_ ->
+                    let
+                        textString =
+                            "Fiddlestic|<s!"
+                    in
+                        Expect.equal (run textNode textString) (Ok (TextNode "Fiddlestic|"))
+            , test "Fails if the string starts with a < character."
                 <| \_ ->
                     let
                         textString =
