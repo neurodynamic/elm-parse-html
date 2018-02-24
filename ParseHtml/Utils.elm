@@ -8,7 +8,7 @@ import Set
 
 xmlTagName : Parser String
 xmlTagName =
-    variable isXMLStartChar isVarChar (Set.fromList [])
+    variable isXMLStartChar isVarChar Set.empty
 
 
 isXMLStartChar : Char -> Bool

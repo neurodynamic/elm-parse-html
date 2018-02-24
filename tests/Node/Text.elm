@@ -36,6 +36,6 @@ suite =
                         result =
                             run textNode badTextString
                     in
-                        expectProblem result BadRepeat
+                        expectProblem result ExpectingVariable
             ]
         ]
