@@ -3,6 +3,7 @@ module Node.Element exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
+import TestHelp exposing (expectProblem)
 import Parser exposing (run, Error, Problem(..))
 import ParseHtml.Node.Element exposing (element)
 import ParseHtml.Node.Model exposing (Node(..))
@@ -40,18 +41,10 @@ suite =
                 , test "Fails without closing tag."
                     <| \_ ->
                         let
-                            badElement =
-                                "<p>"
-
                             result =
-                                run element badElement
+                                run element "<p>"
                         in
-                            case result of
-                                Err error ->
-                                    Expect.equal error.problem (ExpectingSymbol "</p>")
-
-                                _ ->
-                                    Expect.fail "Result wasn't an error."
+                            expectProblem result (ExpectingSymbol "</p>")
                 ]
             , test "Matches self-closing tags."
                 <| \_ ->
