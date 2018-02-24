@@ -44,7 +44,7 @@ suite =
                             result =
                                 run element "<button attr=></button>"
                         in
-                            expectProblem result (BadOneOf [ ExpectingSymbol "\"", ExpectingSymbol "'", ExpectingVariable ])
+                            expectProblem result (BadOneOf [ ExpectingVariable, ExpectingSymbol "\"", ExpectingSymbol "'" ])
                 , test "Fails without closing tag."
                     <| \_ ->
                         let

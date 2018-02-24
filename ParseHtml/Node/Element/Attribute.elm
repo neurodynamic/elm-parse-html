@@ -31,7 +31,7 @@ attribute =
 attributeValue : Parser (Maybe String)
 attributeValue =
     Parser.oneOf
-        [ Parser.delayedCommitMap always valueAfterEquals (Parser.succeed ())
+        [ valueAfterEquals
         , Parser.succeed Nothing
         ]
 
@@ -47,14 +47,7 @@ tagNameOrQuotedString : Parser String
 tagNameOrQuotedString =
     Parser.oneOf
         [ xmlTagName
-        , quotedString
-        ]
-
-
-quotedString : Parser String
-quotedString =
-    oneOf
-        [ singleQuotedString
+        , singleQuotedString
         , doubleQuotedString
         ]
 
