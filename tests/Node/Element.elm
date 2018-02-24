@@ -46,22 +46,21 @@ suite =
                         in
                             expectProblem result
                                 (BadOneOf [ ExpectingVariable, ExpectingSymbol "\"", ExpectingSymbol "'" ])
-                  --{- Note: There is a duplicated error here because up to this point
-                  --   This matches BOTH a self-closing tag and a tag
-                  ---}
-                  --expectProblem result
-                  --    (BadOneOf
-                  --        [ BadOneOf [ ExpectingVariable, ExpectingSymbol "\"", ExpectingSymbol "'" ]
-                  --        , BadOneOf [ ExpectingVariable, ExpectingSymbol "\"", ExpectingSymbol "'" ]
-                  --        ]
-                  --    )
                 , test "Fails without closing tag."
                     <| \_ ->
                         let
                             result =
                                 run element "<p>"
                         in
-                            expectProblem result (ExpectingSymbol "</p>")
+                            expectProblem result
+                                (BadOneOf
+                                    ([ ExpectingSymbol "</p>"
+                                     , ExpectingSymbol "<!--"
+                                     , ExpectingSymbol "<"
+                                     , ExpectingVariable
+                                     ]
+                                    )
+                                )
                 ]
             , test "Matches self-closing tags."
                 <| \_ ->
