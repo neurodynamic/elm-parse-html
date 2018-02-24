@@ -9,20 +9,12 @@ import ParseHtml.Node.Comment exposing (comment)
 import ParseHtml.Node.Text exposing (textNode)
 
 
-element : Parser Node
-element =
-    lazy
-        (\_ ->
-            oneOf
-                [ selfClosingTagElement
-                , tagWrappedElement
-                ]
-        )
-
-
 node : Parser Node
 node =
-    oneOf [ comment, element, textNode ]
+    lazy
+        (\_ ->
+            oneOf [ comment, element, textNode ]
+        )
 
 
 nodeList : Parser (List Node)
@@ -30,32 +22,69 @@ nodeList =
     lazy (\_ -> repeat zeroOrMore node)
 
 
-selfClosingTagElement : Parser Node
-selfClosingTagElement =
-    inContext "self-closing tag"
-        <| (delayedCommitMap (\tag _ -> tag)
-                (succeed Element
-                    |. symbol "<"
-                    |= xmlTagName
-                    |= attributeList
-                    |. optionalSpaces
-                    |. symbol "/>"
-                    |= succeed []
-                )
-                (succeed ())
-           )
-
-
-tagWrappedElement : Parser Node
-tagWrappedElement =
+element : Parser Node
+element =
     lazy
         (\_ ->
-            inContext "html element"
-                <| (delayedCommitMap (\result _ -> result) openingTag optionalSpaces
-                        |= nodeList
-                        |> andThen closingTagFor
-                   )
+            openTagStart
+                |> Parser.andThen openTagEnd
         )
+
+
+openTagStart : Parser (List Node -> Node)
+openTagStart =
+    succeed Element
+        |. symbol "<"
+        |= xmlTagName
+        |= attributeList
+        |. optionalSpaces
+
+
+openTagEnd : (List Node -> Node) -> Parser Node
+openTagEnd elementFunc =
+    oneOf
+        [ tagSelfClose elementFunc
+        , openTagEndFollowedByChildrenAndClosingTag elementFunc
+        ]
+
+
+tagSelfClose : (List Node -> Node) -> Parser Node
+tagSelfClose elementFunc =
+    case elementFunc [] of
+        (Element tagName attrs []) as element ->
+            succeed element
+                |. optionalSpaces
+                |. symbol "/>"
+
+        _ ->
+            fail "tagSelfClose got passed something that wasn't an Element. This is a bug in the parser."
+
+
+openTagEndFollowedByChildrenAndClosingTag : (List Node -> Node) -> Parser Node
+openTagEndFollowedByChildrenAndClosingTag elementFunc =
+    case elementFunc [] of
+        (Element tagName attrs []) as element ->
+            succeed (Element tagName attrs)
+                |. symbol ">"
+                |= nodeList
+                |. optionalSpaces
+                |. symbol ("</" ++ tagName ++ ">")
+
+        _ ->
+            fail "openTagEndFollowedByChildrenAndClosingTag got passed something that wasn't an Element. This is a bug in the parser."
+
+
+
+--tagWrappedElement : Parser Node
+--tagWrappedElement =
+--    lazy
+--        (\_ ->
+--            inContext "html element"
+--                <| (delayedCommitMap (\result _ -> result) openingTag optionalSpaces
+--                        |= nodeList
+--                        |> andThen closingTagFor
+--                   )
+--        )
 
 
 openingTag : Parser (List Node -> Node)
@@ -67,22 +96,18 @@ openingTag =
         |. symbol ">"
 
 
-closingTagFor : Node -> Parser Node
-closingTagFor node =
-    case node of
-        (Element name _ _) as element ->
-            succeed identity
-                |. symbol ("</" ++ name ++ ">")
-                |= succeed element
 
-        TextNode content ->
-            fail "Tried to find a closing tag for a text node. This is a bug in the parser."
-
-        Comment content ->
-            fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
-
-
-
+--closingTagFor : Node -> Parser Node
+--closingTagFor node =
+--    case node of
+--        (Element name _ _) as element ->
+--            succeed identity
+--                |. symbol ("</" ++ name ++ ">")
+--                |= succeed element
+--        TextNode content ->
+--            fail "Tried to find a closing tag for a text node. This is a bug in the parser."
+--        Comment content ->
+--            fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
 {-
    XML elements must follow these naming rules:
 
