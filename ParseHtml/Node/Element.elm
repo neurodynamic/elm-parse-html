@@ -11,15 +11,18 @@ import ParseHtml.Node.Text exposing (textNode)
 
 element : Parser Node
 element =
-    oneOf
-        [ selfClosingTagElement
-        , tagWrappedElement
-        ]
+    lazy
+        (\_ ->
+            oneOf
+                [ selfClosingTagElement
+                , tagWrappedElement
+                ]
+        )
 
 
 node : Parser Node
 node =
-    lazy (\_ -> oneOf [ comment, element, textNode ])
+    oneOf [ comment, element, textNode ]
 
 
 nodeList : Parser (List Node)
@@ -45,11 +48,14 @@ selfClosingTagElement =
 
 tagWrappedElement : Parser Node
 tagWrappedElement =
-    inContext "html element"
-        <| (delayedCommitMap (\result _ -> result) openingTag optionalSpaces
-                |= nodeList
-                |> andThen closingTagFor
-           )
+    lazy
+        (\_ ->
+            inContext "html element"
+                <| (delayedCommitMap (\result _ -> result) openingTag optionalSpaces
+                        |= nodeList
+                        |> andThen closingTagFor
+                   )
+        )
 
 
 openingTag : Parser (List Node -> Node)
