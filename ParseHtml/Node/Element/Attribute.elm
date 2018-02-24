@@ -47,8 +47,8 @@ tagNameOrQuotedString : Parser String
 tagNameOrQuotedString =
     Parser.oneOf
         [ xmlTagName
-        , singleQuotedString
         , doubleQuotedString
+        , singleQuotedString
         ]
 
 
