@@ -1,14 +1,14 @@
 module ParseHtml.Utils exposing (..)
 
 import Parser exposing (..)
+import Parser.LanguageKit exposing (variable)
 import Char
+import Set
 
 
 xmlTagName : Parser String
 xmlTagName =
-    succeed (++)
-        |= keep (Exactly 1) isXMLStartChar
-        |= keep zeroOrMore isVarChar
+    variable isXMLStartChar isVarChar (Set.fromList [])
 
 
 isXMLStartChar : Char -> Bool
