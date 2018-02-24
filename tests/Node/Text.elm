@@ -3,6 +3,7 @@ module Node.Text exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
+import TestHelp exposing (expectProblem)
 import Parser exposing (run, Error, Problem(..))
 import ParseHtml.Node.Text exposing (textNode)
 import ParseHtml.Node.Model exposing (Node(..))
@@ -15,31 +16,26 @@ suite =
             [ test "Returns the whole string if there are no < characters in it."
                 <| \_ ->
                     let
-                        textString =
+                        goodTextString =
                             "Hey yo I'm a string!"
                     in
-                        Expect.equal (run textNode textString) (Ok (TextNode textString))
+                        Expect.equal (run textNode goodTextString) (Ok (TextNode goodTextString))
             , test "Succeeds the string until the first < character if it contains one."
                 <| \_ ->
                     let
-                        textString =
+                        goodTextString =
                             "Fiddlestic|<s!"
                     in
-                        Expect.equal (run textNode textString) (Ok (TextNode "Fiddlestic|"))
+                        Expect.equal (run textNode goodTextString) (Ok (TextNode "Fiddlestic|"))
             , test "Fails if the string starts with a < character."
                 <| \_ ->
                     let
-                        textString =
+                        badTextString =
                             "<Fiddlesticks!"
+
+                        result =
+                            run textNode badTextString
                     in
-                        Expect.equal (run textNode textString)
-                            (Err
-                                { row = 1
-                                , col = 1
-                                , source = textString
-                                , problem = BadRepeat
-                                , context = [ { row = 1, col = 1, description = "text" } ]
-                                }
-                            )
+                        expectProblem result BadRepeat
             ]
         ]
