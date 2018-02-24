@@ -3,3 +3,4 @@ An HTML parser in Elm using the [elm-tools/parser](http://package.elm-lang.org/p
 TODO
 - Slashless self-closing tags like \<br\>, \<hr\>, etc.
 - Better errors
+- Escape characters?
