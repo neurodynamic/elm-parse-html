@@ -36,6 +36,6 @@ suite =
                         result =
                             run textNode badTextString
                     in
-                        expectProblem result ExpectingVariable
+                        expectProblem result (Fail "Text nodes can't start with \"<\".")
             ]
         ]
