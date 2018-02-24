@@ -5,14 +5,26 @@ import ParseHtml.Utils exposing (..)
 import ParseHtml.Utils exposing (..)
 import ParseHtml.Node.Model exposing (..)
 import ParseHtml.Node.Element.Attribute exposing (..)
+import ParseHtml.Node.Comment exposing (comment)
+import ParseHtml.Node.Text exposing (textNode)
 
 
-elementWithChildrenFunc : Parser (List Node) -> Parser Node
-elementWithChildrenFunc childrenParsingFunc =
+element : Parser Node
+element =
     oneOf
         [ selfClosingTagElement
-        , tagWrappedElement childrenParsingFunc
+        , tagWrappedElement
         ]
+
+
+node : Parser Node
+node =
+    lazy (\_ -> oneOf [ comment, element, textNode ])
+
+
+nodeList : Parser (List Node)
+nodeList =
+    lazy (\_ -> repeat zeroOrMore node)
 
 
 selfClosingTagElement : Parser Node
@@ -31,11 +43,11 @@ selfClosingTagElement =
            )
 
 
-tagWrappedElement : Parser (List Node) -> Parser Node
-tagWrappedElement childrenParsingFunc =
+tagWrappedElement : Parser Node
+tagWrappedElement =
     inContext "html element"
         <| (delayedCommitMap (\result _ -> result) openingTag optionalSpaces
-                |= childrenParsingFunc
+                |= nodeList
                 |> andThen closingTagFor
            )
 

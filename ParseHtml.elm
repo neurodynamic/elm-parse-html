@@ -18,16 +18,6 @@ rootNode =
         |. end
 
 
-node : Parser Node
-node =
-    lazy (\_ -> oneOf [ comment, element, textNode ])
-
-
-nodeList : Parser (List Node)
-nodeList =
-    lazy (\_ -> repeat zeroOrMore node)
-
-
 element : Parser Node
 element =
     lazy (\_ -> elementWithChildrenFunc nodeList)
