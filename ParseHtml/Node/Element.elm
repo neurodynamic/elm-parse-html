@@ -64,50 +64,63 @@ openTagEndFollowedByChildrenAndClosingTag : (List Node -> Node) -> Parser Node
 openTagEndFollowedByChildrenAndClosingTag elementFunc =
     case elementFunc [] of
         (Element tagName attrs []) as element ->
-            succeed (Element tagName attrs)
+            succeed element
                 |. symbol ">"
-                |= nodeList
-                |. optionalSpaces
-                |. symbol ("</" ++ tagName ++ ">")
+                |> andThen closingTagOrNextChildNodeFor
 
         _ ->
             fail "openTagEndFollowedByChildrenAndClosingTag got passed something that wasn't an Element. This is a bug in the parser."
 
 
+closingTagOrNextChildNodeFor : Node -> Parser Node
+closingTagOrNextChildNodeFor node =
+    case node of
+        Element name attributes children ->
+            oneOf
+                [ closingTagFor node
+                , comment
+                    |> andThen (addChildAndCheckAgain name attributes children)
+                , element
+                    |> andThen (addChildAndCheckAgain name attributes children)
+                , textNode
+                    |> andThen (addChildAndCheckAgain name attributes children)
+                ]
 
---tagWrappedElement : Parser Node
---tagWrappedElement =
---    lazy
---        (\_ ->
---            inContext "html element"
---                <| (delayedCommitMap (\result _ -> result) openingTag optionalSpaces
---                        |= nodeList
---                        |> andThen closingTagFor
---                   )
---        )
+        TextNode content ->
+            fail "Tried to find a closing tag for a text node. This is a bug in the parser."
 
-
-openingTag : Parser (List Node -> Node)
-openingTag =
-    succeed Element
-        |. symbol "<"
-        |= xmlTagName
-        |= attributeList
-        |. symbol ">"
-
+        Comment content ->
+            fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
 
 
---closingTagFor : Node -> Parser Node
---closingTagFor node =
---    case node of
---        (Element name _ _) as element ->
---            succeed identity
---                |. symbol ("</" ++ name ++ ">")
---                |= succeed element
---        TextNode content ->
---            fail "Tried to find a closing tag for a text node. This is a bug in the parser."
---        Comment content ->
---            fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
+addChildAndCheckAgain : String -> List Attribute -> List Node -> Node -> Parser Node
+addChildAndCheckAgain elName elAttrs elChildren newChild =
+    let
+        allChildren =
+            elChildren ++ [ newChild ]
+
+        newElement =
+            Element elName elAttrs allChildren
+    in
+        closingTagOrNextChildNodeFor newElement
+
+
+closingTagFor : Node -> Parser Node
+closingTagFor node =
+    case node of
+        (Element name _ _) as element ->
+            succeed identity
+                |. symbol ("</" ++ name ++ ">")
+                |= succeed element
+
+        TextNode content ->
+            fail "Tried to find a closing tag for a text node. This is a bug in the parser."
+
+        Comment content ->
+            fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
+
+
+
 {-
    XML elements must follow these naming rules:
 
