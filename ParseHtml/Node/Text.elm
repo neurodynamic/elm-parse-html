@@ -10,6 +10,16 @@ import ParseHtml.Node.Model exposing (..)
 textNode : Parser Node
 textNode =
     inContext "text"
-        <| (succeed TextNode
-                |= variable (\char -> char /= '<') (\char -> char /= '<') Set.empty
+        <| (succeed identity
+                |= keep (Exactly 1) (\_ -> True)
+                |> andThen textNodeOrFail
            )
+
+
+textNodeOrFail : String -> Parser Node
+textNodeOrFail string =
+    if string == "<" then
+        fail "Text nodes can't start with \"<\"."
+    else
+        succeed (\theRest -> TextNode (string ++ theRest))
+            |= keep zeroOrMore (\char -> char /= '<')
