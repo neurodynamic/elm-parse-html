@@ -12,4 +12,4 @@ expectProblem result expectedProblem =
             Expect.equal error.problem expectedProblem
 
         _ ->
-            Expect.fail "Result should have been an error but wasn't."
+            Expect.fail "Result should have been an Err but wasn't."
