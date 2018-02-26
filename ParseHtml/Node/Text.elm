@@ -6,6 +6,11 @@ import Set
 import ParseHtml.Node.Model exposing (Node(..))
 
 
+{-| Parses an HTML text node (this will succeed on any string not starting with a "<" character, so make sure you run other parsers first).
+
+    Parser.run textNode "some text" == Ok (textNode "some text")
+    Parser.run textNode "<some text" == Err BadRepeat
+-}
 textNode : Parser Node
 textNode =
     inContext "text"
