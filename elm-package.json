@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.2",
     "summary": "An HTML parser written in Elm using the elm-tools/parser parsing library.",
     "repository": "https://github.com/neurodynamic/elm-parse-html.git",
     "license": "BSD3",

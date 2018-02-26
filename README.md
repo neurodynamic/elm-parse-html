@@ -8,7 +8,18 @@ An HTML parser in Elm using the [elm-tools/parser](http://package.elm-lang.org/p
       == Ok (Element "html" [] [])
 
     parseDocument "<!DOCTYPE html><html><head></head><body><h1>I am a document!</h1><!--I'm a comment!--></body></html>"
-      == Ok (Element "html" [] [ Element "head" [] [], Element "body" [] [ Element "h1" [] [ TextNode "I am a document!" ], Comment "I'm a comment!"] ])
+      == Ok
+        (Element "html"
+            []
+            [ Element "head" [] []
+            , Element "body"
+                []
+                [ Element "h1" [] [ TextNode "I am a document!" ]
+                , Comment "I'm a comment!"
+                ]
+            ]
+        )
+
 
 ### TODO
 - Slashless self-closing tags like \<br\>, \<hr\>, etc.
