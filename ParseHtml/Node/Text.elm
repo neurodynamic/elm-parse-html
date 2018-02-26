@@ -1,5 +1,11 @@
 module ParseHtml.Node.Text exposing (textNode)
 
+{-| Parsing for HTML text nodes.
+
+# Functions
+@docs textNode
+-}
+
 import Parser exposing (..)
 import Char
 import Set

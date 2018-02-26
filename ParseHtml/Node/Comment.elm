@@ -1,5 +1,10 @@
 module ParseHtml.Node.Comment exposing (comment)
 
+{-| Parsing for HTML comments.
+# Functions
+@docs comment
+-}
+
 import Parser exposing (..)
 import Char
 import ParseHtml.Node.Model exposing (Node(..))
