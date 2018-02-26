@@ -23,5 +23,16 @@ suite =
                             run document doc
                     in
                         Expect.equal result (Ok (Element "html" [] []))
+            , test "Fails without DOCTYPE."
+                <| \_ ->
+                    let
+                        doc =
+                            "<html></html>"
+
+                        result =
+                            run document doc
+                    in
+                        expectProblem result
+                            (ExpectingSymbol "<!DOCTYPE html>")
             ]
         ]
