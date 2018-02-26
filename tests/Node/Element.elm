@@ -38,6 +38,21 @@ suite =
                         in
                             Expect.equal (run element goodElement)
                                 (Ok (Element "button" [ ( "disabled", Nothing ) ] []))
+                , test "Matches element with children."
+                    <| \_ ->
+                        let
+                            goodElement =
+                                "<div><p>Hello</p><p>Goodbye</p></div>"
+                        in
+                            Expect.equal (run element goodElement)
+                                (Ok
+                                    (Element "div"
+                                        []
+                                        [ Element "p" [] [ TextNode "Hello" ]
+                                        , Element "p" [] [ TextNode "Goodbye" ]
+                                        ]
+                                    )
+                                )
                 , test "Fails if attribute has equals but no value."
                     <| \_ ->
                         let
