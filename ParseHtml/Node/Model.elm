@@ -1,8 +1,10 @@
-module ParseHtml.Node.Model exposing (..)
+module ParseHtml.Node.Model exposing (Node(..))
 
 import ParseHtml.Node.Element.Attribute exposing (Attribute)
 
 
+{-| This data model represents an HTML node. In most common use, it will probably represent a complete tree of HTML elements parsed from an HTML document.
+-}
 type alias Name =
     String
 
