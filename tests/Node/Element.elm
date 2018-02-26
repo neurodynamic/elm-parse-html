@@ -57,7 +57,7 @@ suite =
                                     ([ ExpectingSymbol "</p>"
                                      , ExpectingSymbol "<!--"
                                      , ExpectingSymbol "<"
-                                     , ExpectingVariable
+                                     , BadRepeat
                                      ]
                                     )
                                 )
