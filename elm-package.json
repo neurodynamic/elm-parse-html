@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "An HTML parser written in Elm using the elm-tools/parser parsing library.",
-    "repository": "git@github.com:neurodynamic/elm-parse-html.git",
+    "repository": "https://github.com/neurodynamic/elm-parse-html.git",
     "license": "BSD3",
     "source-directories": [
         "."
