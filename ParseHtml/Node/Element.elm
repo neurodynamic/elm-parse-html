@@ -1,5 +1,10 @@
 module ParseHtml.Node.Element exposing (element)
 
+{-| Parsing for HTML elements.
+# Functions
+@docs element
+-}
+
 import Parser exposing (..)
 import ParseHtml.Node.Model exposing (Node(..))
 import ParseHtml.Node.Element.Attribute exposing (Attribute, attributeList)
