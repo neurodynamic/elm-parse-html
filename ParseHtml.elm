@@ -1,4 +1,4 @@
-module ParseHtml.Base exposing (..)
+module ParseHtml exposing (..)
 
 import Parser exposing (..)
 import ParseHtml.Node.Model exposing (..)
@@ -8,24 +8,19 @@ import ParseHtml.Node.Text exposing (..)
 import ParseHtml.Utils exposing (..)
 
 
-rootNode : Parser Node
-rootNode =
+document : Parser Node
+document =
     succeed identity
         |. symbol "<!DOCTYPE html>"
         |. optionalSpaces
-        |= node
+        |= element
         |. optionalSpaces
         |. end
 
 
-element : Parser Node
-element =
-    lazy (\_ -> elementWithChildrenFunc nodeList)
-
-
 parseHtml : String -> Result Error Node
 parseHtml html =
-    Parser.run rootNode html
+    Parser.run document html
 
 
 parseHtmlWithDefault : (Error -> Node) -> String -> Node
