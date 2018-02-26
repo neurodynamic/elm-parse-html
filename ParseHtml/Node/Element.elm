@@ -8,14 +8,12 @@ import ParseHtml.Node.Text exposing (textNode)
 import ParseHtml.Utils exposing (optionalSpaces, xmlTagName)
 
 
-node : Parser Node
-node =
-    lazy
-        (\_ ->
-            oneOf [ comment, element, textNode ]
-        )
+{-| Parses an HTML element.
 
-
+    Parser.run element "<p></p>" == Ok (Element "p" [] [])
+    Parser.run element "<p class="myclass"></p>" == Ok (Element "p" [("class", "myclass")] [])
+    Parser.run element "<p>Hi!</p>" == Ok (Element "p" [] [ TextNode "Hi!" ])
+-}
 element : Parser Node
 element =
     lazy
@@ -87,6 +85,14 @@ closingTagOrNextChildNodeFor node =
             fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
 
 
+node : Parser Node
+node =
+    lazy
+        (\_ ->
+            oneOf [ comment, element, textNode ]
+        )
+
+
 addChildAndCheckAgain : String -> List Attribute -> List Node -> Node -> Parser Node
 addChildAndCheckAgain elName elAttrs elChildren newChild =
     let
@@ -112,14 +118,3 @@ closingTagFor node =
 
         Comment content ->
             fail "Tried to find a closing html tag for an html comment. This is a bug in the parser."
-
-
-
-{-
-   XML elements must follow these naming rules:
-
-   Names can contain letters, numbers, and other characters
-   Names cannot start with a number or punctuation character
-   Names cannot start with the letters xml (or XML, or Xml, etc)
-   Names cannot contain spaces
--}

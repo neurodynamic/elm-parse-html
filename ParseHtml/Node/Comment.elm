@@ -6,6 +6,10 @@ import ParseHtml.Node.Model exposing (Node(..))
 import ParseHtml.Utils exposing (keepUntilExclusive)
 
 
+{-| Parses an HTML comment
+
+    Parser.run comment "<!--Comment!-->" == Ok (Comment "Comment!")
+-}
 comment : Parser Node
 comment =
     inContext "comment"
