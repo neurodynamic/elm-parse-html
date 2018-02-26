@@ -1,11 +1,9 @@
 module ParseHtml exposing (..)
 
 import Parser exposing (..)
-import ParseHtml.Node.Model exposing (..)
-import ParseHtml.Node.Element exposing (..)
-import ParseHtml.Node.Comment exposing (..)
-import ParseHtml.Node.Text exposing (..)
-import ParseHtml.Utils exposing (..)
+import ParseHtml.Node.Model exposing (Node)
+import ParseHtml.Node.Element exposing (element)
+import ParseHtml.Utils exposing (optionalSpaces)
 
 
 document : Parser Node
@@ -18,16 +16,6 @@ document =
         |. end
 
 
-parseHtml : String -> Result Error Node
-parseHtml html =
+parseDocument : String -> Result Error Node
+parseDocument html =
     Parser.run document html
-
-
-parseHtmlWithDefault : (Error -> Node) -> String -> Node
-parseHtmlWithDefault errorFunc html =
-    case parseHtml html of
-        Ok rootNode ->
-            rootNode
-
-        Err error ->
-            errorFunc error

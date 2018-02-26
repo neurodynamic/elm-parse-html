@@ -1,12 +1,11 @@
-module ParseHtml.Node.Element exposing (..)
+module ParseHtml.Node.Element exposing (element)
 
 import Parser exposing (..)
-import ParseHtml.Utils exposing (..)
-import ParseHtml.Utils exposing (..)
-import ParseHtml.Node.Model exposing (..)
-import ParseHtml.Node.Element.Attribute exposing (..)
+import ParseHtml.Node.Model exposing (Node(..))
+import ParseHtml.Node.Element.Attribute exposing (Attribute, attributeList)
 import ParseHtml.Node.Comment exposing (comment)
 import ParseHtml.Node.Text exposing (textNode)
+import ParseHtml.Utils exposing (optionalSpaces, xmlTagName)
 
 
 node : Parser Node
@@ -15,11 +14,6 @@ node =
         (\_ ->
             oneOf [ comment, element, textNode ]
         )
-
-
-nodeList : Parser (List Node)
-nodeList =
-    lazy (\_ -> repeat zeroOrMore node)
 
 
 element : Parser Node

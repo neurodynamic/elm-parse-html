@@ -2,8 +2,8 @@ module ParseHtml.Node.Comment exposing (comment)
 
 import Parser exposing (..)
 import Char
-import ParseHtml.Node.Model exposing (..)
-import ParseHtml.Utils exposing (..)
+import ParseHtml.Node.Model exposing (Node(..))
+import ParseHtml.Utils exposing (keepUntilExclusive)
 
 
 comment : Parser Node
