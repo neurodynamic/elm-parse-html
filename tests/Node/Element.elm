@@ -42,13 +42,15 @@ suite =
                     <| \_ ->
                         let
                             goodElement =
-                                "<div><p>Hello</p><p>Goodbye</p></div>"
+                                "<div><p>Hello</p>I'm some text!<!-- Comment! --><p>Goodbye</p></div>"
                         in
                             Expect.equal (run element goodElement)
                                 (Ok
                                     (Element "div"
                                         []
                                         [ Element "p" [] [ TextNode "Hello" ]
+                                        , TextNode "I'm some text!"
+                                        , Comment " Comment! "
                                         , Element "p" [] [ TextNode "Goodbye" ]
                                         ]
                                     )
