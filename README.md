@@ -3,3 +3,5 @@ An HTML parser in Elm using the [elm-tools/parser](http://package.elm-lang.org/p
 TODO
 - Slashless self-closing tags like \<br\>, \<hr\>, etc.
 - Escape characters?
+
+Note: For any who may have read [my reasons for not using GitHub](https://github.com/neurodynamic/Switching-to-GitLab), this project is hosted on GitHub because the Elm package management system currently only integrates with GitHub. If integrations are implemented for other code hosting sites, I plan to relocate this project somewhere else.
