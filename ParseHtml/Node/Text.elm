@@ -1,10 +1,9 @@
 module ParseHtml.Node.Text exposing (textNode)
 
 import Parser exposing (..)
-import Parser.LanguageKit exposing (variable)
 import Char
 import Set
-import ParseHtml.Node.Model exposing (..)
+import ParseHtml.Node.Model exposing (Node(..))
 
 
 textNode : Parser Node

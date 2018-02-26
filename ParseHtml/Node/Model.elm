@@ -1,6 +1,6 @@
 module ParseHtml.Node.Model exposing (..)
 
-import ParseHtml.Node.Element.Attribute exposing (..)
+import ParseHtml.Node.Element.Attribute exposing (Attribute)
 
 
 type alias Name =
