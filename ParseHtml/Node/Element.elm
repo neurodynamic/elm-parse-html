@@ -119,7 +119,9 @@ closingTagFor node =
     case node of
         (Element name _ _) as element ->
             succeed identity
-                |. symbol ("</" ++ name ++ ">")
+                |. symbol "</"
+                |. inContext name (inContext "closing tag" (symbol name))
+                |. symbol ">"
                 |= succeed element
 
         TextNode content ->

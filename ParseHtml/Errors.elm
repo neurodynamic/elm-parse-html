@@ -1,7 +1,12 @@
-module ParseHtml.Errors exposing (translateError, ErrorLineParts, errorLineParts)
+module ParseHtml.Errors exposing (translateError, ErrorLineParts)
 
 import Parser exposing (Error, Problem(..), Context)
 import Array
+
+
+translateError : Error -> ( String, ErrorLineParts )
+translateError error =
+    ( errorDescription error, errorLineParts error )
 
 
 type alias ErrorLineParts =
@@ -17,16 +22,16 @@ errorLineParts error =
         line =
             errorLine error
     in
-        case headContext error of
-            Just { row, col, description } ->
-                ErrorLineParts (String.left error.col line)
-                    (String.slice error.col (error.col + 1) line)
-                    (String.dropLeft (error.col + 1) line)
+        case ( headContext error, error.col - 1 ) of
+            ( Just { row, col, description }, errorColIndex ) ->
+                ErrorLineParts (String.left errorColIndex line)
+                    (String.slice errorColIndex (errorColIndex + 1) line)
+                    (String.dropLeft (errorColIndex + 1) line)
 
-            Nothing ->
-                ErrorLineParts (String.left error.col line)
-                    (String.slice error.col (error.col + 1) line)
-                    (String.dropLeft (error.col + 1) line)
+            ( Nothing, errorColIndex ) ->
+                ErrorLineParts (String.left errorColIndex line)
+                    (String.slice errorColIndex (errorColIndex + 1) line)
+                    (String.dropLeft (errorColIndex + 1) line)
 
 
 errorLine : Error -> String
@@ -39,8 +44,8 @@ errorLine error =
         |> Maybe.withDefault "Couldn't find the line this error happened on."
 
 
-translateError : Error -> String
-translateError error =
+errorDescription : Error -> String
+errorDescription error =
     let
         description =
             headContextDescriptionFor error
@@ -61,11 +66,11 @@ translateError error =
             ( BadOneOf [ ExpectingSymbol "/>", ExpectingSymbol ">" ], "end of tag" ) ->
                 "HTML tags must end with \">\" or \"/>\". For example, \"<section>\""
 
-            ( BadOneOf _, "closing tag or next child node" ) ->
+            ( _, "closing tag" ) ->
                 "This \"" ++ extraData ++ "\" element needs a \"</" ++ extraData ++ ">\" tag to close it."
 
             ( problem, desc ) ->
-                "Uncategorized problem: " ++ (toString problem) ++ ", in context: " ++ desc
+                "Uncategorized problem: " ++ (toString problem) ++ ", in context: \"" ++ desc ++ "\"."
 
 
 headContextDescriptionFor : Error -> String
