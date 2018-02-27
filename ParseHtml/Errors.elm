@@ -1,13 +1,49 @@
-module ParseHtml.Errors exposing (translateError)
+module ParseHtml.Errors exposing (translateError, ErrorLineParts, errorLineParts)
 
-import Parser exposing (Error, Problem(..))
+import Parser exposing (Error, Problem(..), Context)
+import Array
+
+
+type alias ErrorLineParts =
+    { beforeIssue : String
+    , issue : String
+    , afterIssue : String
+    }
+
+
+errorLineParts : Error -> ErrorLineParts
+errorLineParts error =
+    let
+        line =
+            errorLine error
+    in
+        case headContext error of
+            Just { row, col, description } ->
+                ErrorLineParts (String.left error.col line)
+                    (String.slice error.col (error.col + 1) line)
+                    (String.dropLeft (error.col + 1) line)
+
+            Nothing ->
+                ErrorLineParts (String.left error.col line)
+                    (String.slice error.col (error.col + 1) line)
+                    (String.dropLeft (error.col + 1) line)
+
+
+errorLine : Error -> String
+errorLine error =
+    error
+        |> .source
+        |> String.lines
+        |> Array.fromList
+        |> Array.get (error.row - 1)
+        |> Maybe.withDefault "Couldn't find the line this error happened on."
 
 
 translateError : Error -> String
 translateError error =
     let
         description =
-            headContextFor error
+            headContextDescriptionFor error
 
         extraData =
             extraDataFor error
@@ -32,13 +68,19 @@ translateError error =
                 "Uncategorized problem: " ++ (toString problem) ++ ", in context: " ++ desc
 
 
-headContextFor : Error -> String
-headContextFor error =
+headContextDescriptionFor : Error -> String
+headContextDescriptionFor error =
+    error
+        |> headContext
+        |> Maybe.map .description
+        |> Maybe.withDefault "No context."
+
+
+headContext : Error -> Maybe Context
+headContext error =
     error
         |> .context
         |> List.head
-        |> Maybe.map .description
-        |> Maybe.withDefault "No context."
 
 
 {-| Sometimes we need extra data on an error for a good message. Like the name of the tag that the error happened in. We store this in the second-most-recent context if so. This function retrieves that context's description to get the data.
