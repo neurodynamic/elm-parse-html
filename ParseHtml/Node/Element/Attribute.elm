@@ -23,25 +23,29 @@ nextAttribute =
 
 attribute : Parser Attribute
 attribute =
-    succeed (,)
+    succeed identity
         |= xmlTagName
-        |= attributeValue
+        |> andThen attributeValue
 
 
-attributeValue : Parser (Maybe String)
-attributeValue =
-    Parser.oneOf
-        [ valueAfterEquals
-        , Parser.succeed Nothing
-        ]
+attributeValue : String -> Parser ( String, Maybe String )
+attributeValue attributeName =
+    succeed (,)
+        |= succeed attributeName
+        |= Parser.oneOf
+            [ valueAfterEquals attributeName
+            , Parser.succeed Nothing
+            ]
 
 
-valueAfterEquals : Parser (Maybe String)
-valueAfterEquals =
-    inContext "attribute"
-        <| Parser.succeed Just
-        |. symbol "="
-        |= tagNameOrQuotedString
+valueAfterEquals : String -> Parser (Maybe String)
+valueAfterEquals attributeName =
+    inContext attributeName
+        <| (inContext "attribute"
+                <| Parser.succeed Just
+                |. symbol "="
+                |= tagNameOrQuotedString
+           )
 
 
 tagNameOrQuotedString : Parser String

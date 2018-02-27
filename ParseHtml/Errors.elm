@@ -20,7 +20,7 @@ translateError error =
                 "After opening an element with a \"<\", you need to provide a tag name. For example, \"<section>\"."
 
             ( _, "attribute" ) ->
-                "All HTML attributes followed by an \"=\" must have a value. For example, \"<section class=\"my-class\">\""
+                "All HTML attributes followed by an \"=\" must have a value. For example, \"" ++ extraData ++ "='some value'\"."
 
             ( BadOneOf [ ExpectingSymbol "/>", ExpectingSymbol ">" ], "end of tag" ) ->
                 "HTML tags must end with \">\" or \"/>\". For example, \"<section>\""
