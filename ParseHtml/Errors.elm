@@ -17,5 +17,8 @@ translateError error =
             "DOCTYPE" ->
                 "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
 
+            "tag name" ->
+                "After opening an element with a \"<\", you need to provide a tag name. For example, \"<section>\"."
+
             _ ->
                 "???"

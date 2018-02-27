@@ -21,7 +21,7 @@ import ParseHtml.Utils exposing (optionalSpaces)
 document : Parser Node
 document =
     succeed identity
-        |. symbol "<!DOCTYPE html>"
+        |. inContext "DOCTYPE" (symbol "<!DOCTYPE html>")
         |. optionalSpaces
         |= element
         |. optionalSpaces
