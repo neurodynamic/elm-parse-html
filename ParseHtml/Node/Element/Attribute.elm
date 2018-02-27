@@ -38,7 +38,8 @@ attributeValue =
 
 valueAfterEquals : Parser (Maybe String)
 valueAfterEquals =
-    Parser.succeed Just
+    inContext "attribute"
+        <| Parser.succeed Just
         |. symbol "="
         |= tagNameOrQuotedString
 

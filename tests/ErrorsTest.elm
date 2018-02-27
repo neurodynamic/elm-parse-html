@@ -27,6 +27,27 @@ suite =
                             parseDocument "<!DOCTYPE html><"
                     in
                         expectErrorTranslation result "After opening an element with a \"<\", you need to provide a tag name. For example, \"<section>\"."
+            , test "Explains need for element attribute value after equals"
+                <| \_ ->
+                    let
+                        result =
+                            parseDocument "<!DOCTYPE html><section attr="
+                    in
+                        expectErrorTranslation result "All HTML attributes followed by an \"=\" must have a value. For example, \"<section class=\"my-class\">\""
+            , test "Explains need for closing \">\" symbol"
+                <| \_ ->
+                    let
+                        result =
+                            parseDocument "<!DOCTYPE html><section"
+                    in
+                        expectErrorTranslation result "HTML tags must end with \">\" or \"/>\". For example, \"<section>\""
+            , test "Explains need for closing tag"
+                <| \_ ->
+                    let
+                        result =
+                            parseDocument "<!DOCTYPE html><section>"
+                    in
+                        expectErrorTranslation result "This \"section\" element needs a \"</section>\" tag to close it."
             ]
         ]
 
