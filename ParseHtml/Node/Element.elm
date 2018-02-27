@@ -39,10 +39,11 @@ openTagStart =
 
 openTagEnd : (List Node -> Node) -> Parser Node
 openTagEnd elementFunc =
-    oneOf
-        [ tagSelfClose elementFunc
-        , openTagEndFollowedByChildrenAndClosingTag elementFunc
-        ]
+    inContext "end of tag"
+        <| oneOf
+            [ tagSelfClose elementFunc
+            , openTagEndFollowedByChildrenAndClosingTag elementFunc
+            ]
 
 
 tagSelfClose : (List Node -> Node) -> Parser Node
@@ -73,15 +74,18 @@ closingTagOrNextChildNodeFor : Node -> Parser Node
 closingTagOrNextChildNodeFor node =
     case node of
         Element name attributes children ->
-            oneOf
-                [ closingTagFor node
-                , comment
-                    |> andThen (addChildAndCheckAgain name attributes children)
-                , element
-                    |> andThen (addChildAndCheckAgain name attributes children)
-                , textNode
-                    |> andThen (addChildAndCheckAgain name attributes children)
-                ]
+            inContext name
+                <| (inContext "closing tag or next child node"
+                        <| oneOf
+                            [ closingTagFor node
+                            , comment
+                                |> andThen (addChildAndCheckAgain name attributes children)
+                            , element
+                                |> andThen (addChildAndCheckAgain name attributes children)
+                            , textNode
+                                |> andThen (addChildAndCheckAgain name attributes children)
+                            ]
+                   )
 
         TextNode content ->
             fail "Tried to find a closing tag for a text node. This is a bug in the parser."
