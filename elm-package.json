@@ -8,6 +8,7 @@
     ],
     "exposed-modules": [
         "ParseHtml",
+        "ParseHtml.Errors",
         "ParseHtml.Node.Model",
         "ParseHtml.Node.Element",
         "ParseHtml.Node.Comment",
