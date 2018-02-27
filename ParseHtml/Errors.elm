@@ -26,6 +26,8 @@ translateError error =
     ( errorDescription error, errorLineParts error )
 
 
+{-| Holds the line an error occurred on in three parts: the part before the issue that caused the error, the part that caused the error, and the part after the issue that caused the error.
+-}
 type alias ErrorLineParts =
     { beforeIssue : String
     , issue : String
