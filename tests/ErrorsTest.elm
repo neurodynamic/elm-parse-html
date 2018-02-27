@@ -13,16 +13,20 @@ suite : Test
 suite =
     describe "The Errors module"
         [ describe "Errors.translateError"
-            [ describe "document errors"
-                [ test "Requires DOCTYPE tag."
-                    <| \_ ->
-                        let
-                            result =
-                                parseDocument "some stuff"
-                        in
-                            expectErrorTranslation result "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
-                ]
-              --, describe "textNode errors" []
+            [ test "Requests DOCTYPE tag."
+                <| \_ ->
+                    let
+                        result =
+                            parseDocument "some stuff"
+                    in
+                        expectErrorTranslation result "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
+            , test "Explains need for element tag name"
+                <| \_ ->
+                    let
+                        result =
+                            parseDocument "<!DOCTYPE html><"
+                    in
+                        expectErrorTranslation result "After opening an element with a \"<\", you need to provide a tag name. For example, \"<section>\"."
             ]
         ]
 

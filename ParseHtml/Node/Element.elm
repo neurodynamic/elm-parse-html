@@ -32,7 +32,7 @@ openTagStart : Parser (List Node -> Node)
 openTagStart =
     succeed Element
         |. symbol "<"
-        |= xmlTagName
+        |= inContext "tag name" xmlTagName
         |= attributeList
         |. optionalSpaces
 
