@@ -5,7 +5,7 @@ import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
 import TestHelp exposing (expectProblem)
 import Parser exposing (run, Error, Problem(..))
-import ParseHtml.Errors exposing (translateError)
+import ParseHtml.Errors exposing (translateError, ErrorLineParts, errorLineParts)
 import ParseHtml exposing (parseDocument)
 
 
@@ -49,6 +49,15 @@ suite =
                     in
                         expectErrorTranslation result "This \"section\" element needs a \"</section>\" tag to close it."
             ]
+        , describe "Errors.errorLineParts"
+            [ test "Shows tag as source of error for tag name errors"
+                <| \_ ->
+                    let
+                        result =
+                            parseDocument "<!DOCTYPE html>\n<section></xxxxx>"
+                    in
+                        expectErrorLineParts result (ErrorLineParts "<section></" "x" "xxxx>")
+            ]
         ]
 
 
@@ -57,6 +66,20 @@ expectErrorTranslation result expectedErrorText =
     case result of
         Err error ->
             Expect.equal (translateError error) expectedErrorText
+
+        result ->
+            let
+                printedResult =
+                    Debug.log "Unexpected result:" result
+            in
+                Expect.fail "Result should have been an Err but wasn't."
+
+
+expectErrorLineParts : Result Parser.Error a -> ErrorLineParts -> Expect.Expectation
+expectErrorLineParts result expectedErrorLineParts =
+    case result of
+        Err error ->
+            Expect.equal (errorLineParts error) expectedErrorLineParts
 
         result ->
             let
