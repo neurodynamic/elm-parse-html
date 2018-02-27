@@ -71,7 +71,7 @@ suite =
                         in
                             expectProblem result
                                 (BadOneOf
-                                    ([ ExpectingSymbol "</p>"
+                                    ([ ExpectingSymbol "</"
                                      , ExpectingSymbol "<!--"
                                      , ExpectingSymbol "<"
                                      , BadRepeat

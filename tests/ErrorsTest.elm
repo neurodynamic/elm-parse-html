@@ -5,7 +5,7 @@ import Fuzz exposing (Fuzzer, int, list, string)
 import Test exposing (..)
 import TestHelp exposing (expectProblem)
 import Parser exposing (run, Error, Problem(..))
-import ParseHtml.Errors exposing (translateError, ErrorLineParts, errorLineParts)
+import ParseHtml.Errors exposing (translateError, ErrorLineParts)
 import ParseHtml exposing (parseDocument)
 
 
@@ -19,67 +19,59 @@ suite =
                         result =
                             parseDocument "some stuff"
                     in
-                        expectErrorTranslation result "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
+                        expectErrorTranslation result
+                            ( "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
+                            , ErrorLineParts "" "s" "ome stuff"
+                            )
             , test "Explains need for element tag name"
                 <| \_ ->
                     let
                         result =
-                            parseDocument "<!DOCTYPE html><"
+                            parseDocument "<!DOCTYPE html>\n<"
                     in
-                        expectErrorTranslation result "After opening an element with a \"<\", you need to provide a tag name. For example, \"<section>\"."
+                        expectErrorTranslation result
+                            ( "After opening an element with a \"<\", you need to provide a tag name. For example, \"<section>\"."
+                            , ErrorLineParts "<" "" ""
+                            )
             , test "Explains need for element attribute value after equals"
                 <| \_ ->
                     let
                         result =
-                            parseDocument "<!DOCTYPE html><section attr="
+                            parseDocument "<!DOCTYPE html>\n<section attr= "
                     in
-                        expectErrorTranslation result "All HTML attributes followed by an \"=\" must have a value. For example, \"attr='some value'\"."
+                        expectErrorTranslation result
+                            ( "All HTML attributes followed by an \"=\" must have a value. For example, \"attr='some value'\"."
+                            , ErrorLineParts "<section attr=" " " ""
+                            )
             , test "Explains need for closing \">\" symbol"
                 <| \_ ->
                     let
                         result =
-                            parseDocument "<!DOCTYPE html><section"
+                            parseDocument "<!DOCTYPE html>\n<section<"
                     in
-                        expectErrorTranslation result "HTML tags must end with \">\" or \"/>\". For example, \"<section>\""
+                        expectErrorTranslation result
+                            ( "HTML tags must end with \">\" or \"/>\". For example, \"<section>\""
+                            , ErrorLineParts "<section" "<" ""
+                            )
             , test "Explains need for closing tag"
                 <| \_ ->
                     let
                         result =
-                            parseDocument "<!DOCTYPE html><section>"
+                            parseDocument "<!DOCTYPE html>\n<section></xxxx>"
                     in
-                        expectErrorTranslation result "This \"section\" element needs a \"</section>\" tag to close it."
-            ]
-        , describe "Errors.errorLineParts"
-            [ test "Shows tag as source of error for tag name errors"
-                <| \_ ->
-                    let
-                        result =
-                            parseDocument "<!DOCTYPE html>\n<section></xxxxx>"
-                    in
-                        expectErrorLineParts result (ErrorLineParts "<section></" "x" "xxxx>")
+                        expectErrorTranslation result
+                            ( "This \"section\" element needs a \"</section>\" tag to close it."
+                            , ErrorLineParts "<section></" "x" "xxx>"
+                            )
             ]
         ]
 
 
-expectErrorTranslation : Result Parser.Error a -> String -> Expect.Expectation
-expectErrorTranslation result expectedErrorText =
+expectErrorTranslation : Result Parser.Error a -> ( String, ErrorLineParts ) -> Expect.Expectation
+expectErrorTranslation result expectedErrorData =
     case result of
         Err error ->
-            Expect.equal (translateError error) expectedErrorText
-
-        result ->
-            let
-                printedResult =
-                    Debug.log "Unexpected result:" result
-            in
-                Expect.fail "Result should have been an Err but wasn't."
-
-
-expectErrorLineParts : Result Parser.Error a -> ErrorLineParts -> Expect.Expectation
-expectErrorLineParts result expectedErrorLineParts =
-    case result of
-        Err error ->
-            Expect.equal (errorLineParts error) expectedErrorLineParts
+            Expect.equal (translateError error) expectedErrorData
 
         result ->
             let
