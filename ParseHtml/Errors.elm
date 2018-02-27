@@ -1,10 +1,10 @@
-module ParseHtml.Errors exposing (translateError, ErrorLineParts)
+module ParseHtml.Errors exposing (translateError, ErrorLine)
 
 {-| Tools for producing useful error messages.
 # Functions
 @docs translateError
 # Data
-@docs ErrorLineParts
+@docs ErrorLine
 -}
 
 import Parser exposing (Error, Problem(..), Context)
@@ -18,43 +18,41 @@ import Array
         Err error ->
             translateError error
     == ( "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
-    , ErrorLineParts "" "s" "ome stuff"
+    , ErrorLine "" "s" "ome stuff"
     )
 -}
-translateError : Error -> ( String, ErrorLineParts )
+translateError : Error -> ( String, ErrorLine )
 translateError error =
-    ( errorDescription error, errorLineParts error )
+    ( errorDescription error, errorLine error )
 
 
-{-| Holds the line an error occurred on in three parts: the part before the issue that caused the error, the part that caused the error, and the part after the issue that caused the error.
+{-| Holds the line number and the line an error occurred on in three parts: the part before the issue that caused the error, the part that caused the error, and the part after the issue that caused the error.
 -}
-type alias ErrorLineParts =
+type alias ErrorLine =
     { beforeIssue : String
     , issue : String
     , afterIssue : String
+    , number : Int
     }
 
 
-errorLineParts : Error -> ErrorLineParts
-errorLineParts error =
+errorLine : Error -> ErrorLine
+errorLine error =
     let
         line =
-            errorLine error
+            errorLineString error
+
+        errorColIndex =
+            error.col - 1
     in
-        case ( headContext error, error.col - 1 ) of
-            ( Just { row, col, description }, errorColIndex ) ->
-                ErrorLineParts (String.left errorColIndex line)
-                    (String.slice errorColIndex (errorColIndex + 1) line)
-                    (String.dropLeft (errorColIndex + 1) line)
-
-            ( Nothing, errorColIndex ) ->
-                ErrorLineParts (String.left errorColIndex line)
-                    (String.slice errorColIndex (errorColIndex + 1) line)
-                    (String.dropLeft (errorColIndex + 1) line)
+        ErrorLine (String.left errorColIndex line)
+            (String.slice errorColIndex (errorColIndex + 1) line)
+            (String.dropLeft (errorColIndex + 1) line)
+            error.row
 
 
-errorLine : Error -> String
-errorLine error =
+errorLineString : Error -> String
+errorLineString error =
     error
         |> .source
         |> String.lines
