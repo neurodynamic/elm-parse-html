@@ -33,7 +33,7 @@ suite =
                         result =
                             parseDocument "<!DOCTYPE html><section attr="
                     in
-                        expectErrorTranslation result "All HTML attributes followed by an \"=\" must have a value. For example, \"<section class=\"my-class\">\""
+                        expectErrorTranslation result "All HTML attributes followed by an \"=\" must have a value. For example, \"attr='some value'\"."
             , test "Explains need for closing \">\" symbol"
                 <| \_ ->
                     let
