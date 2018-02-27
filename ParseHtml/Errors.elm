@@ -1,9 +1,26 @@
 module ParseHtml.Errors exposing (translateError, ErrorLineParts)
 
+{-| Tools for producing useful error messages.
+# Functions
+@docs translateError
+# Data
+@docs ErrorLineParts
+-}
+
 import Parser exposing (Error, Problem(..), Context)
 import Array
 
 
+{-| Converts a Parser.Error record into a human-readable description of the error, and the line on which the error occurs, broken into the columns before the error, at the error, and past the error.
+
+    case parseDocument "some stuff" of
+        {- ...other cases... -}
+        Err error ->
+            translateError error
+    == ( "Your HTML is missing a DOCTYPE declaration. Put \"<!DOCTYPE html>\" at the very beginning of the HTML."
+    , ErrorLineParts "" "s" "ome stuff"
+    )
+-}
 translateError : Error -> ( String, ErrorLineParts )
 translateError error =
     ( errorDescription error, errorLineParts error )
